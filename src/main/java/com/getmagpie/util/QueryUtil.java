@@ -4,6 +4,14 @@ import java.util.Arrays;
 import com.getmagpie.data.Result;
 
 public class QueryUtil {
+	//DB.CONNECT
+	//DB.SELECT|COUNT|COMPARE
+	//DB.SELECT|FIRST
+	//DB.FIELD(field_name)|COMPARE
+	//DB.FIELD(field_name)|COMPARE
+	//DB.FIELD(field_name)|MATCH
+	//DB.FIELD(field_name)|COMPARE(\\|TEXT|\\|HTML|\\|VAL)
+	//DB.FIELD(field_name)|MATCH(\\|TEXT|\\|HTML|\\|VAL)	
 	private static String allCmd = "^(GOTO|BROWSER|URL(\\|EQUALS|\\|MATCH)|WAIT|SCREENSHOT|EXIT|SET|SUBMIT|CLICK|COMPARE(\\|SIZE|\\|TEXT|\\|HTML|\\|VAL)|MATCH(\\|TEXT|\\|HTML|\\|VAL))$";
 	private static final String[] JUSTNOSEL = new String[] {"URL|EQUALS", "URL|MATCH", "GOTO", "BROWSER", "WAIT", "SCREENSHOT", "EXIT"};
 	

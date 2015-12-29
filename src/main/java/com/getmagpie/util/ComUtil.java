@@ -20,8 +20,4 @@ public class ComUtil {
         }
 		return template;
 	}
-	
-	public static void main(String args[]){
-		System.out.println(ComUtil.isValid("(@)?(href=')?(HREF=')?(HREF=\")?(href=\")?(http://)?[a-zA-Z_0-9\\-]+(\\.\\w[a-zA-Z_0-9\\-]+)+(/[#&\\n\\-=?\\+\\%/\\.\\w]+)?", "https://stackoverflow.com/questions/1600291/validating-url-in-java"));
-	}
 }

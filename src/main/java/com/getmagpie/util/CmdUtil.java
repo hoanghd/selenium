@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -32,6 +33,12 @@ public class CmdUtil {
 		}
 		else if(cmd.startsWith("GOTO")){
 			jQuery.url(val);
+		}
+		else if(cmd.equals("WAIT")){
+			if(!val.isEmpty())
+				jQuery.driver().get()
+					.manage().timeouts()
+					.implicitlyWait(Double.valueOf(val).intValue(), TimeUnit.SECONDS);
 		}
 		else if(cmd.equals("EXIT")){
 			jQuery.quit();
@@ -65,7 +72,7 @@ public class CmdUtil {
 	}
 	
 	public static void screenshot(String path){
-		try {
+		try {			
 			WebDriver driver = jQuery.driver().get();			
 			File scrFile = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 			FileUtils.copyFile(scrFile, new File(path), true);
@@ -187,7 +194,7 @@ public class CmdUtil {
 		if(sel.size() == 0){
 			return Result.notFound(selector);
 		}
-		else{
+		else{			
 			sel.val(val);
 		}
 		
@@ -195,7 +202,6 @@ public class CmdUtil {
 	}
 	
 	public static void hub(String type, String hub){
-		System.out.println(hub);
 		WebDriver driver = null;
 		DesiredCapabilities capability = null;
 		
