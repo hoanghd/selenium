@@ -5,9 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -15,7 +13,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
-
 import com.getmagpie.data.Result;
 import com.getmagpie.data.Value;
 
@@ -35,10 +32,13 @@ public class CmdUtil {
 			jQuery.url(val);
 		}
 		else if(cmd.equals("WAIT")){
-			if(!val.isEmpty())
-				jQuery.driver().get()
-					.manage().timeouts()
-					.implicitlyWait(Double.valueOf(val).intValue(), TimeUnit.SECONDS);
+			if(!val.isEmpty()){
+				try {					
+					Thread.sleep(Double.valueOf(val).intValue() * 1000);				
+				} catch (Exception e) {
+					e.printStackTrace();
+				}				
+			}
 		}
 		else if(cmd.equals("EXIT")){
 			jQuery.quit();
