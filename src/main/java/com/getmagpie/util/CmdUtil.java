@@ -6,13 +6,16 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.regex.Pattern;
+
 import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+
 import com.getmagpie.data.Result;
 import com.getmagpie.data.Value;
 
@@ -31,6 +34,12 @@ public class CmdUtil {
 		else if(cmd.startsWith("GOTO")){
 			jQuery.url(val);
 		}
+		else if(cmd.startsWith("SWITCHTOFRAME")){
+			toFrame(selector);
+		}
+		else if(cmd.startsWith("SWITCHTODEFAULT")){
+			toDefault();
+		}
 		else if(cmd.equals("WAIT")){
 			if(!val.isEmpty()){
 				try {					
@@ -48,6 +57,9 @@ public class CmdUtil {
 		}
 		else if(cmd.equals("SET")){
 			return setVal(selector, val);
+		}
+		else if(cmd.equals("SENDKEYS")){
+			return sendKeys(selector, val);
 		}
 		else if(cmd.equals("SUBMIT")){
 			return submit(selector, val);
@@ -69,6 +81,14 @@ public class CmdUtil {
 		}
 		
 		return Result.success();
+	}
+	
+	public static void toFrame(String selector){
+		jQuery.driver().get().switchTo().frame(selector);
+	}
+	
+	public static void toDefault(){
+		jQuery.driver().get().switchTo().defaultContent();
 	}
 	
 	public static void screenshot(String path){
@@ -128,6 +148,7 @@ public class CmdUtil {
 	
 	public static Result compare(String selector, String type, String text){
 		SeleniumQueryObject sel = jQuery(selector);
+		sel.get(0).sendKeys();
 		
 		if(sel.size() == 0){
 			return Result.notFound(selector);
@@ -188,6 +209,18 @@ public class CmdUtil {
 		return Result.success();
 	}
 	
+	public static Result sendKeys(String selector, String val){
+		SeleniumQueryObject sel = jQuery(selector);
+		
+		if(sel.size() == 0){
+			return Result.notFound(selector);
+		}
+		else{
+			sel.get(0).sendKeys(val);
+		}
+		
+		return Result.success();
+	}
 	public static Result setVal(String selector, String val){
 		SeleniumQueryObject sel = jQuery(selector);
 		
