@@ -8,7 +8,6 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -23,6 +22,8 @@ import io.github.seleniumquery.SeleniumQueryObject;
 
 public class CmdUtil {
 	public static Result exec(String cmd, String selector, String val){
+		System.out.print("[" + cmd + "]\t> " + selector + " | " + val);
+		
 		if(cmd.equals("BROWSER")){
 			if(!selector.isEmpty() && selector.startsWith("http")){
 				hub(val, selector);
