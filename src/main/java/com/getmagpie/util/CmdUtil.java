@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
@@ -17,6 +18,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 
 import com.getmagpie.data.Result;
 import com.getmagpie.data.Value;
+import com.getmagpie.db.Database;
 
 import io.github.seleniumquery.SeleniumQueryObject;
 
@@ -79,6 +81,46 @@ public class CmdUtil {
 		else if(cmd.startsWith("MATCH")){
 			String[] parts = cmd.split(Pattern.quote("|"));
 			return match(selector, (parts.length>1 ? parts[1] : null), val);
+		}
+		else if(cmd.equals("DB.CONNECT")){
+			return Database.getInstance().connect(val);			
+		}
+		else if(cmd.equals("DB.CLOSE")){
+			return Database.getInstance().close();
+		}
+		else if(cmd.startsWith("DB.SELECT|COUNT")){
+			Result rs = Database.getInstance().count(val);
+			if(rs.getStatus()){
+				Value value = Value.parse(val);
+				return value.compareTo(Double.valueOf(String.valueOf(Database.getInstance().getCnt())));
+			}
+			return rs;
+		}
+		else if(cmd.equals("DB.SELECT")){
+			return Database.getInstance().find(val);
+		}
+		else if(cmd.startsWith("DB.FIELD")){
+			List<String> params = ComUtil.matcher("DB\\.FIELD\\((.+)\\)\\|(.+)\\|?(.+)?", cmd);
+			String dbVal = Database.getInstance().getValue(params.get(0));
+			
+			if(params.get(2) == null || params.get(2).isEmpty()){				
+				if(params.get(1).equals("COMPARE")){
+					Value vl = Value.parse(val);
+					return vl.compareTo(dbVal);
+				} else {
+					if(ComUtil.isValid(dbVal, val)){
+						return Result.success(val);
+					} else {
+						Result.failure(val);
+					}
+				}				
+			} else {
+				if(params.get(1).equals("COMPARE")){
+					return compare(selector, params.get(2), val+dbVal);
+				} else {
+					return match(selector, params.get(2), val+dbVal);
+				}
+			}
 		}
 		
 		return Result.success();
@@ -167,13 +209,25 @@ public class CmdUtil {
 			}
 			else if(sel.size() == 1){	
 				if(type.equals("TEXT")){
-					return val.compareTo(sel.text());
+					return val.compareTo(sel.text().trim());
 				}
 				else if(type.equals("HTML")){
 					return val.compareTo(sel.html());
 				}
 				else if(type.equals("VAL")){
 					return val.compareTo(sel.val());
+				}
+				else if (type.equals("DISABLED")) {
+					return val.compareTo(sel.attr("disabled"));
+				}
+				else if (type.equals("SRC")) {
+					return val.compareTo(sel.attr("src"));
+				}
+				else if (type.equals("TYPE")) {
+					return val.compareTo(sel.attr("type"));
+				}
+				else if (type.equals("PLACEHOLDER")) {
+					return val.compareTo(sel.attr("placeholder"));
 				}
 			}
 			else if(sel.size() > 1){

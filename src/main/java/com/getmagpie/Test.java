@@ -12,32 +12,38 @@ import com.getmagpie.util.QueryUtil;
 
 public class Test {
 	public static void main(String[] args) {
-		String path = "./excel/Login.xlsx";
-		String sheetAt = "0";
-		try {
-			List<ExcelRow> items = ExcelUtil.load(path, Double.valueOf(sheetAt).intValue());
-			String imagePath = FileUtil.makeImagePath(path);
-			
-			if(items.size()>0){
-				for(int i=0; i<items.size(); i++){
-					ExcelRow itm = items.get(i);
-					Result result = QueryUtil.row(itm.getCmd(), itm.getValue(), itm.getSelector());
-					
-					itm.setResult(result.getStatus() ? "PASS" : "FAIL");
-					itm.setMessage(result.getMessage());
-					
-					if(!result.getStatus() || itm.isEvidence()){
-						String evPath = imagePath + sheetAt + File.separator + "EV" + i + ".png";
-						CmdUtil.screenshot(evPath);
-						itm.setPath(evPath);
-					}
-				}
+		//if(args.length == 2){
+			String path = "./excel/Magpie.xlsx";
+			String sheetAt = "0";
+			try {
+				List<ExcelRow> items = ExcelUtil.load(path, Double.valueOf(sheetAt).intValue());
+				String imagePath = FileUtil.makeImagePath(path);
 				
-				ExcelUtil.save(path, Double.valueOf(sheetAt).intValue(), items);
+				if(items.size()>0){
+					for(int i=0; i<items.size(); i++){
+						ExcelRow itm = items.get(i);
+						Result result = QueryUtil.row(itm.getCmd(), itm.getValue(), itm.getSelector());
+						System.out.println(result.getStatus() ? "\t|OK" : "\t|NG");
+						
+						itm.setResult(result.getStatus() ? "OK" : "NG");
+						itm.setMessage(result.getMessage());
+						
+						if(!result.getStatus() || itm.isEvidence()){
+							String evPath = imagePath + sheetAt + File.separator + "EV" + i + ".png";
+							CmdUtil.screenshot(evPath);
+							itm.setPath(evPath);
+						}
+					}
+					
+					ExcelUtil.save(path, Double.valueOf(sheetAt).intValue(), items);
+				}
+			} 
+			catch (Exception e) {
+				e.printStackTrace();			
 			}
-		} 
-		catch (Exception e) {
-			e.printStackTrace();			
-		}
+//		}
+//		else {
+//			System.out.println("Usage: `java -jar getmagpie-0.0.1-SNAPSHOT.jar ./excel/sample.xlsx 0`");
+//		}
 	}
 }

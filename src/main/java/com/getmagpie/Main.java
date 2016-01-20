@@ -23,7 +23,7 @@ public class Main {
 					for(int i=0; i<items.size(); i++){
 						ExcelRow itm = items.get(i);
 						Result result = QueryUtil.row(itm.getCmd(), itm.getValue(), itm.getSelector());
-						System.out.println(result.getStatus() ? "\t|OK" : "\t|NG");
+						System.out.println(result.getStatus() ? "\t|OK" : "\t|NG -> " + result.getMessage());
 						
 						itm.setResult(result.getStatus() ? "OK" : "NG");
 						itm.setMessage(result.getMessage());
