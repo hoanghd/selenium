@@ -39,9 +39,7 @@ public class DBPostgresql implements DBAbstract {
 	}
 
 	public Result count(String sql, Map<String, String> params) {
-		try {		
-			row = new HashMap<String, String>();
-			
+		try {
 			PreparedStatement stmt = null;
 			Statement st = null;
 			ResultSet rs = null;
@@ -108,9 +106,50 @@ public class DBPostgresql implements DBAbstract {
 
 	public Result find(String sql, Map<String, String> params) {
 		try {		  
-			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery(sql);
 			row = new HashMap<String, String>();
+			
+			PreparedStatement stmt = null;
+			Statement st = null;
+			ResultSet rs = null;
+			
+			if(!params.isEmpty()) {
+				stmt = conn.prepareStatement(sql);
+				
+                for(Entry<String, String> entry : params.entrySet()) {
+                	int key = Integer.valueOf(entry.getKey());
+                	List<String> value = ComUtil.matcher("\\[([a-z0-9]+)\\](.+)", entry.getValue());
+                	if(value.size() == 2){
+                		if(value.get(0).equals("string")){
+                			stmt.setString(key, value.get(1));
+                		}
+                		else if(value.get(0).equals("int")){
+                			stmt.setInt(key, Integer.valueOf(value.get(1)));
+                		}
+                		else if(value.get(0).equals("date")){
+                			if(value.get(1).equals("now()")){
+                				stmt.setDate(key, new java.sql.Date(System.currentTimeMillis()));
+                			} 
+                			else{
+                				stmt.setDate(key, java.sql.Date.valueOf(value.get(1)));
+                			}
+                		}
+                		else if(value.get(0).equals("timestamp")){
+                			if(value.get(1).equals("now()")){
+                				stmt.setTimestamp(key, new java.sql.Timestamp(System.currentTimeMillis()));
+                			} 
+                			else{
+                				stmt.setTimestamp(key, java.sql.Timestamp.valueOf(value.get(1)));
+                			}
+                		}
+                	}	
+                }
+                
+                rs = stmt.executeQuery();   
+                
+			} else {
+				st = conn.createStatement();
+				rs = st.executeQuery(sql);
+			}
 	      
 			if(rs != null){
 				if(rs.next()){
@@ -122,8 +161,12 @@ public class DBPostgresql implements DBAbstract {
 				}
 			}
 	      
-			rs.close();
-			st.close();
+			rs.close();			
+			if(st != null)
+				st.close();
+			
+			if(stmt != null)
+				stmt.close();
 	      
 			return Result.success();
 	    }
