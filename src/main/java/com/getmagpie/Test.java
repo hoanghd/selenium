@@ -13,6 +13,7 @@ import com.getmagpie.util.QueryUtil;
 public class Test {
 	public static void main(String[] args) {
 		//if(args.length == 2){
+
 			String path = "./excel/Magpie.xlsx";
 			String sheetAt = "0";
 			try {
@@ -29,7 +30,16 @@ public class Test {
 						itm.setMessage(result.getMessage());
 						
 						if(!result.getStatus() || itm.isEvidence()){
-							String evPath = imagePath + sheetAt + File.separator + "EV" + i + ".png";
+							String evPath = imagePath + ExcelUtil.sheetName + File.separator;
+							
+							if(!result.getStatus()){
+								evPath += "B";
+							} else {
+								evPath += ((itm.getId().isEmpty() || itm.getId() == null) ? "EV" : itm.getId());
+							}
+							
+							evPath += i + ".png";
+							
 							CmdUtil.screenshot(evPath);
 							itm.setPath(evPath);
 						}
@@ -39,7 +49,7 @@ public class Test {
 				}
 			} 
 			catch (Exception e) {
-				e.printStackTrace();			
+				e.printStackTrace();
 			}
 //		}
 //		else {

@@ -17,6 +17,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelUtil {
+	public static String sheetName;
+	
 	public static void save(String path, int sheetAt, List<ExcelRow> rows){
 		try {
 			FileInputStream fis = new FileInputStream(path);
@@ -79,6 +81,7 @@ public class ExcelUtil {
 				
 				if(wb.getNumberOfSheets() > sheetAt){
 					XSSFSheet sheet = wb.getSheetAt(sheetAt);					
+					sheetName = sheet.getSheetName();
 					
 					int rowsCount = sheet.getLastRowNum();				
 					for (int i = 1; i <= rowsCount; i++) {
@@ -87,6 +90,7 @@ public class ExcelUtil {
 		                
 		                if(row != null){
 		                	item.setIndex(i);
+		                	item.setId(getCellVal(row.getCell(0)));
 		                    item.setCmd(getCellVal(row.getCell(1)));
 		                    item.setSelector(getCellVal(row.getCell(2)));
 		                    item.setValue(getCellVal(row.getCell(3)));

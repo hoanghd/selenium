@@ -57,6 +57,9 @@ public class DBPostgresql implements DBAbstract {
                 		else if(value.get(0).equals("int")){
                 			stmt.setInt(key, Integer.valueOf(value.get(1)));
                 		}
+                		else if(value.get(0).equals("float")){
+                			stmt.setFloat(key, Float.valueOf(value.get(1)));                			
+                		}
                 		else if(value.get(0).equals("date")){
                 			if(value.get(1).equals("now()")){
                 				stmt.setDate(key, new java.sql.Date(System.currentTimeMillis()));

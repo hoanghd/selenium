@@ -12,7 +12,9 @@ import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.safari.SafariDriver;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -23,6 +25,8 @@ import com.getmagpie.db.Database;
 import io.github.seleniumquery.SeleniumQueryObject;
 
 public class CmdUtil {
+	public static long waitUntilTimeout = 30000;
+	
 	public static Result exec(String cmd, String selector, String val){
 		System.out.print("[" + cmd + "]\t> " + selector + " | " + val);
 		
@@ -122,8 +126,98 @@ public class CmdUtil {
 				}
 			}
 		}
+		else if(cmd.startsWith("DROPDOWN")){
+			List<String> params = ComUtil.matcher("DROPDOWN\\|(.+)", cmd);
+			return dropdown(selector, params.get(0), val);
+		}
+		else if(cmd.equals("ISCHECKED")){
+			return isChecked(selector, val);
+		}
+		else if(cmd.equals("CHECKED")){
+			return checked(selector, val);
+		}
+		else if(cmd.equals("ISHIDDEN")){
+			return isHidden(selector, val);
+		}
 		
 		return Result.success();
+	}
+	
+	public static Result isHidden(String selector, String val){
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
+		if(sel.size() == 0){
+			return Result.notFound(selector);
+		}
+		else {
+			if(val.trim().toLowerCase().equals("true") && !sel.get(0).isDisplayed()){
+				return Result.success();
+			}
+			else if(val.trim().toLowerCase().equals("false") && sel.get(0).isDisplayed()){
+				return Result.success();
+			}
+		}
+		
+		return Result.failure();
+	}
+	
+	public static Result checked(String selector, String text){
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
+		if(sel.size() == 0){
+			return Result.notFound(selector);
+		}
+		else {			
+			for(int i = 0; i<sel.size(); i++){
+				WebElement elm = sel.get(i);
+				if(elm.getAttribute("value").equals(text) && !elm.isSelected()){
+					elm.click();
+					return Result.success();
+				}
+			}
+		}
+		return Result.failure();
+	}
+	
+	public static Result isChecked(String selector, String text){
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
+		if(sel.size() == 0){
+			return Result.notFound(selector);
+		}
+		else {			
+			for(int i = 0; i<sel.size(); i++){
+				WebElement elm = sel.get(i);
+				if(elm.isSelected() && elm.getAttribute("value").equals(text)){
+					return Result.success();
+				}
+			}
+		}
+		
+		return Result.failure();
+	}
+	
+	public static Result dropdown(String selector, String type, String text){
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
+		if(sel.size() == 0){
+			return Result.notFound(selector);
+		}
+		else if(sel.size() == 1){
+			Select dropdown = new Select(sel.get(0));
+						
+			if(type.equals("TEXT")) {
+				dropdown.selectByVisibleText(text);
+			}
+			else if(type.equals("VALUE")){
+				dropdown.selectByValue(text);
+			}
+			else if(type.equals("INDEX")){
+				dropdown.selectByIndex(Integer.valueOf(text));
+			}
+			
+			return Result.success();
+		}
+		else if(sel.size() > 1){
+			return Result.failure("`{0}` Too many items in returns", new String[]{selector});
+		}
+		return Result.failure();
 	}
 	
 	public static void toFrame(String selector){
@@ -145,7 +239,7 @@ public class CmdUtil {
 		}
 	}
 	
-	public static Result url(String type, String text){
+	public static Result url(String type, String text){		
 		String url = jQuery.url().toString();
 		
 		if(type.equals("EQUALS")) {
@@ -162,7 +256,7 @@ public class CmdUtil {
 	}
 	
 	public static Result match(String selector, String type, String text){
-		SeleniumQueryObject sel = jQuery(selector);
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
 		String val = "";
 		
 		if(sel.size() == 0){
@@ -190,7 +284,7 @@ public class CmdUtil {
 	}
 	
 	public static Result compare(String selector, String type, String text){
-		SeleniumQueryObject sel = jQuery(selector);
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
 		sel.get(0).sendKeys();
 		
 		if(sel.size() == 0){
@@ -239,7 +333,7 @@ public class CmdUtil {
 	}
 	
 	public static Result click(String selector, String val){
-		SeleniumQueryObject sel = jQuery(selector);
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
 		
 		if(sel.size() == 0){
 			return Result.notFound(selector);
@@ -252,7 +346,7 @@ public class CmdUtil {
 	}
 	
 	public static Result submit(String selector, String val){
-		SeleniumQueryObject sel = jQuery(selector);
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
 		
 		if(sel.size() == 0){
 			return Result.notFound(selector);
@@ -265,7 +359,7 @@ public class CmdUtil {
 	}
 	
 	public static Result sendKeys(String selector, String val){
-		SeleniumQueryObject sel = jQuery(selector);
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
 		
 		if(sel.size() == 0){
 			return Result.notFound(selector);
@@ -277,7 +371,7 @@ public class CmdUtil {
 		return Result.success();
 	}
 	public static Result setVal(String selector, String val){
-		SeleniumQueryObject sel = jQuery(selector);
+		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
 		
 		if(sel.size() == 0){
 			return Result.notFound(selector);

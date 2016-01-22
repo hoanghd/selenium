@@ -23,13 +23,22 @@ public class Main {
 					for(int i=0; i<items.size(); i++){
 						ExcelRow itm = items.get(i);
 						Result result = QueryUtil.row(itm.getCmd(), itm.getValue(), itm.getSelector());
-						System.out.println(result.getStatus() ? "\t|OK" : "\t|NG -> " + result.getMessage());
+						System.out.println(result.getStatus() ? "\t|\tOK" : "\t|\tNG -> " + result.getMessage());
 						
 						itm.setResult(result.getStatus() ? "OK" : "NG");
 						itm.setMessage(result.getMessage());
 						
-						if(!result.getStatus() || itm.isEvidence()){
-							String evPath = imagePath + sheetAt + File.separator + "EV" + i + ".png";
+						if(!result.getStatus() || itm.isEvidence()){							
+							String evPath = imagePath + ExcelUtil.sheetName + File.separator;
+							
+							if(!result.getStatus()){
+								evPath += "B";
+							} else {
+								evPath += ((itm.getId().isEmpty() || itm.getId() == null) ? "EV" : itm.getId());
+							}
+							
+							evPath += (itm.getIndex() + 1) + ".png";
+							
 							CmdUtil.screenshot(evPath);
 							itm.setPath(evPath);
 						}
