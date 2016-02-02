@@ -15,6 +15,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
@@ -144,7 +145,7 @@ public class CmdUtil {
 	}
 	
 	public static Result isHidden(String selector, String val){
-		SeleniumQueryObject sel = jQuery(selector).waitUntil(waitUntilTimeout).is(":visible").then();
+		SeleniumQueryObject sel = jQuery(selector);
 		if(sel.size() == 0){
 			return Result.notFound(selector);
 		}
@@ -364,7 +365,11 @@ public class CmdUtil {
 		if(sel.size() == 0){
 			return Result.notFound(selector);
 		}
-		else{
+		else if(ComUtil.isValid("^(NULL|CANCEL|HELP|BACK_SPACE|TAB|CLEAR|RETURN|ENTER|SHIFT|LEFT_SHIFT|CONTROL|LEFT_CONTROL|ALT|LEFT_ALT|PAUSE|ESCAPE|SPACE|PAGE_UP|PAGE_DOWN|END|HOME|LEFT|ARROW_LEFT|UP|ARROW_UP|RIGHT|ARROW_RIGHT|DOWN|ARROW_DOWN|INSERT|DELETE|SEMICOLON|EQUALS|NUMPAD0|NUMPAD1|NUMPAD2|NUMPAD3|NUMPAD4|NUMPAD5|NUMPAD6|NUMPAD7|NUMPAD8|NUMPAD9|MULTIPLY|ADD|SEPARATOR|SUBTRACT|DECIMAL|DIVIDE|F1|F2|F3|F4|F5|F6|F7|F8|F9|F10|F11|F12|META|COMMAND|ZENKAKU_HANKAKU|,)+$", val)){			
+			for (String key: val.split(",")){
+				sel.get(0).sendKeys(QueryUtil.KEYS.get(key));
+			}
+		} else {
 			sel.get(0).sendKeys(val);
 		}
 		
@@ -413,13 +418,25 @@ public class CmdUtil {
 			jQuery.driver().useFirefox();
 			jQuery.driver().get().manage().window().maximize();
 		}
-		else if(type.equals("Chrome")){
+		else if(type.startsWith("Chrome")){
+			ChromeOptions chromeOptions = new ChromeOptions();
+			List<String> params = ComUtil.matcher("Chrome\\((.+)\\)", type);
+			if(params.size()>0){
+				chromeOptions.setBinary(params.get(0));
+			}
+			
 			if(OSUtil.isWindows())
-				jQuery.driver().useChrome().withPathToChromeDriver("./driver/window/chromedriver.exe");
+				jQuery.driver().useChrome()
+					.withOptions(chromeOptions)
+					.withPathToChromeDriver("./driver/window/chromedriver.exe");
 			else if(OSUtil.isMac())
-				jQuery.driver().useChrome().withPathToChromeDriver("./driver/macos/chromedriver");
+				jQuery.driver().useChrome()
+					.withOptions(chromeOptions)	
+					.withPathToChromeDriver("./driver/macos/chromedriver");
 			else 
-				jQuery.driver().useChrome().withPathToChromeDriver("./driver/linux/chromedriver");
+				jQuery.driver().useChrome()
+					.withOptions(chromeOptions)
+					.withPathToChromeDriver("./driver/linux/chromedriver");
 			
 			jQuery.driver().get().manage().window().maximize();
 		}
